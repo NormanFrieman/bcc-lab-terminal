@@ -37,3 +37,8 @@ stop:
 	@echo "Encerrando MySQL..."
 	sudo $(MYSQL_DIR)/bin/mysqladmin -u root -p shutdown
 
+# Adicione isso ao seu Makefile anterior
+monitor:
+	@echo "Monitorando queries em tempo real (pressione Ctrl+C para parar)..."
+	sudo stap -e 'probe process("$(MYSQLD)").mark("query__start") { printf("SQL: %s\n", user_string($$arg1)) }'
+
