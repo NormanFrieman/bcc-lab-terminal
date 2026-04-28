@@ -1,0 +1,24 @@
+global select_count
+global start_times
+
+probe process("/usr/local/mysql/bin/mysqld").mark("select__start") {
+	select_count++
+	printf("Total de selects: %d\n", select_count)
+
+	start_times[tid()] = gettimeofday_us()
+}
+
+probe process("/usr/local/mysql/bin/mysqld").mark("select__done") {
+	if (start_times[tid()]) {
+		elapsed = gettimeofday_us() - start_times[tid()]
+		printf("Duração: %d us | Query finalizada\n", elapsed)
+		
+		delete start_times[tid()]
+	}
+}
+
+
+probe end {
+	printf("\nTotal: %d\n", select_count)
+	printf("É o fim\n")
+}
